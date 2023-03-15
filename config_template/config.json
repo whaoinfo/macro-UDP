@@ -1,0 +1,28 @@
+{
+  "tracer": [
+    {
+      "disable": false,
+      "traceSessionId": "trace-sess-sub1",
+      "endTime": "",
+      "subscriberList": [
+        {
+          "imsi": "111111111111",
+          "msisdn": "2222222222",
+          "imei": "333333333333"
+        }
+      ]
+    },
+    {
+      "disable": false,
+      "traceSessionId": "trace-sess-interface1",
+      "endTime": "",
+      "interfaceList": [
+        {
+          "podName": "111111111111",
+          "serviceName": "2222222222",
+          "interfaces": ["eth0"]
+        }
+      ]
+    }
+  ]
+}

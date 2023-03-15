@@ -1,0 +1,33 @@
+{
+  "app_type": "pcapserver",
+  "log_level": "ALL",
+  "config_paths": {},
+  "components": [
+    {
+      "component_type": "tracer",
+      "disable":false,
+      "kw": {}
+    },
+    {
+      "component_type": "storage",
+      "disable":true,
+      "kw": {
+        "enable_stats_mode": true,
+        "queue_group": {
+          "maxsize": 2,
+          "maxlength": 50
+        },
+        "worker": {
+          "maxsize": 1,
+          "interval_ms": 5000,
+          "interval_rw_count": 10
+        }
+      }
+    },
+    {
+      "component_type": "ioadapter",
+      "disable": true,
+      "kw": {"plugin_type": "UDP", "address": "0.0.0.0:7777", "queue_num": 1, "queue_worker_num": 1}
+    }
+  ]
+}

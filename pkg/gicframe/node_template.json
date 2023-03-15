@@ -1,0 +1,13 @@
+{
+  "node_type": "",
+  "node_id": "",
+  "node_port": 8000,
+  "center_node_addr": "",
+  "services": [
+    {
+      "service_type": "",
+      "service_id": "",
+      "args": []
+    }
+  ]
+}

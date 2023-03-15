@@ -1,0 +1,17 @@
+{
+  "app_type": "pcapproxy",
+  "components": [
+    {
+      "component_type": "tracer",
+      "args": []
+    },
+    {
+      "component_type": "storage",
+      "args": []
+    },
+    {
+      "component_type": "ioadapter",
+      "args": ["UDP", "0.0.0.0:7777", 10, 10]
+    }
+  ]
+}
