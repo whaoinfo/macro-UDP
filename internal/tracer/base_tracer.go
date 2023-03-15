@@ -51,7 +51,9 @@ func (t *BaseTracer) addSessionByConfig(cfg *configmodel.ConfigTraceSessionModel
 	if err := sess.initialize(cfg); err != nil {
 		return fmt.Errorf("failed to initialize, %v", err)
 	}
+
 	t.sessionMap[sess.getID()] = sess
+	logger.InfoFmt("Added the %v session of tracer type %v", sess.getID(), t.getType())
 	return nil
 }
 
@@ -60,6 +62,8 @@ func (t *BaseTracer) matchSessions(msg message.IMessage) []ISession {
 	for _, sess := range t.sessionMap {
 		if sess.match(msg) {
 			retList = append(retList, sess)
+			logger.AllFmt("Matched the %v session, TracerType: %v, MessageType: %v",
+				sess.getID(), t.getType(), msg.GetType())
 		}
 	}
 

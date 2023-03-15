@@ -10,7 +10,7 @@
     },
     {
       "component_type": "storage",
-      "disable":true,
+      "disable":false,
       "kw": {
         "enable_stats_mode": true,
         "queue_group": {
@@ -26,7 +26,7 @@
     },
     {
       "component_type": "ioadapter",
-      "disable": true,
+      "disable": false,
       "kw": {"plugin_type": "UDP", "address": "0.0.0.0:7777", "queue_num": 1, "queue_worker_num": 1}
     }
   ]

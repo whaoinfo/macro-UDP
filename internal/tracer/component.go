@@ -68,6 +68,7 @@ func (t *Component) addTracerSessions(tracer ITracer, cfg configmodel.ConfigTrac
 
 func (t *Component) traceMessage(msg message.IMessage, buf *nbuffer.BufferObject, args ...interface{}) {
 	tpy := args[0].(tracerType)
+	logger.AllFmt("Trace message, TracerType: %v", tpy)
 	if msg == nil {
 		logger.WarnFmt("Failed to trace message, the message is a nil pointer. tracer type: %v", tpy)
 	}

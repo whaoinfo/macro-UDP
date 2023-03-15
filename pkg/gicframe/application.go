@@ -62,11 +62,11 @@ func (t *BaseApplication) GetID() ApplicationID {
 
 func (t *BaseApplication) start() error {
 	for componentID, component := range t.componentMap {
-		logger.InfoFmt("Start component %v...", componentID)
+		logger.InfoFmt("Start %v component...", componentID)
 		if err := component.Start(); err != nil {
-			return fmt.Errorf("the component %v has failed to start, %v", componentID, err)
+			return fmt.Errorf("the %v component has failed to start, %v", componentID, err)
 		}
-		logger.InfoFmt("The component %v has started", componentID)
+		logger.InfoFmt("The %v component has started", componentID)
 	}
 	return nil
 }

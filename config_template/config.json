@@ -3,24 +3,24 @@
     {
       "disable": false,
       "traceSessionId": "trace-sess-sub1",
-      "endTime": "",
+      "endTime": "2023-04-33T00:00:00Z",
       "subscriberList": [
         {
-          "imsi": "111111111111",
-          "msisdn": "2222222222",
-          "imei": "333333333333"
+          "imsi": "1111111111",
+          "msisdn": "",
+          "imei": "2222222222"
         }
       ]
     },
     {
       "disable": false,
       "traceSessionId": "trace-sess-interface1",
-      "endTime": "",
+      "endTime": "2023-04-33T00:00:00Z",
       "interfaceList": [
         {
-          "podName": "111111111111",
-          "serviceName": "2222222222",
-          "interfaces": ["eth0"]
+          "podName": "",
+          "serviceName": "ppe",
+          "interfaces": ["eth0", "net1"]
         }
       ]
     }
