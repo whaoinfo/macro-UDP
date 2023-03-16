@@ -23,7 +23,7 @@ func CallFieldUnmarshalBinary(ownRV reflect.Value, index int, args ...interface{
 		fieldType = field.Type().Name()
 	}
 
-	logger.AllFmt("Call UnmarshalBinary function of %s type, field index: %d", fieldType, index)
+	//logger.AllFmt("Call UnmarshalBinary function of %s type, field index: %d", fieldType, index)
 	callArgs := args[0].([]reflect.Value)
 	if err := mapping.CallFieldMethodByName(field, "UnmarshalBinary", callArgs...); err != nil {
 		logger.WarnFmt("The UnmarshalBinary function of %s type has failed to call, field index: %d, err: %v",
@@ -31,7 +31,7 @@ func CallFieldUnmarshalBinary(ownRV reflect.Value, index int, args ...interface{
 		return err
 	}
 
-	logger.AllFmt("The UnmarshalBinary function of %s type has called, field index: %d", fieldType, index)
+	//logger.AllFmt("The UnmarshalBinary function of %s type has called, field index: %d", fieldType, index)
 	return nil
 }
 

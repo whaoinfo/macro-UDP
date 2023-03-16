@@ -62,7 +62,6 @@ func (t *Pool) addBusyWorkerNum(num int64) {
 }
 
 func (t *Pool) SubmitTask(taskFunc WorkerHandle, args ...interface{}) (submitted bool) {
-	t.lock.Lock()
 	defer func() {
 		if r := recover(); r != nil {
 			logger.ErrorFmt("Catch the exception, recover: %v, stack: %v", r, string(debug.Stack()))
@@ -73,6 +72,7 @@ func (t *Pool) SubmitTask(taskFunc WorkerHandle, args ...interface{}) (submitted
 		}
 	}()
 
+	t.lock.Lock()
 	t.stTaskCount += 1
 	if t.size >= t.maxsize {
 		t.lock.Unlock()
@@ -84,6 +84,8 @@ func (t *Pool) SubmitTask(taskFunc WorkerHandle, args ...interface{}) (submitted
 		worker = t.addWorker()
 	}
 	t.lock.Unlock()
+
+	worker.start()
 
 	ctxt := &Context{
 		Event:  ExecuteEvent,
@@ -106,7 +108,7 @@ func (t *Pool) addWorker() *Worker {
 	worker.initialize(t.generateWorkerID(), t)
 	t.workerMap[worker.GetID()] = worker
 	t.size += 1
-	worker.start()
+	//worker.start()
 	logger.AllFmt("Add a worker, id: %v", worker.GetID())
 	return worker
 }

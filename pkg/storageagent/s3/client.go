@@ -22,10 +22,10 @@ type AmazonS3Client struct {
 }
 
 func (t *AmazonS3Client) Initialize(args ...interface{}) error {
-	t.accessKeyID = args[0].(string)
-	t.secretAccessKey = args[1].(string)
-	t.region = args[2].(string)
-	t.endpointURL = args[3].(string)
+	t.endpointURL = args[0].(string)
+	t.region = args[1].(string)
+	t.accessKeyID = args[2].(string)
+	t.secretAccessKey = args[3].(string)
 
 	cfg, loadCfgErr := loadConfig(t.region, t.endpointURL)
 	if loadCfgErr != nil {

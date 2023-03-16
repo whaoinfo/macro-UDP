@@ -11,7 +11,12 @@ const (
 
 type MsgType uint8
 type NewFunc func() IMessage
-type Handle func(msg IMessage, buf *nbuffer.BufferObject, args ...interface{})
+type Handle func(ctx *HandleContext, args ...interface{})
+
+type HandleContext struct {
+	Buf *nbuffer.BufferObject
+	Msg IMessage
+}
 
 type IMessage interface {
 	MarshalBinary(buf *nbuffer.BufferObject) error

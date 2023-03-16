@@ -9,6 +9,6 @@ func init() {
 	frame.RegisterComponentInfo(define.TracerComponentType, func() frame.IComponent {
 		return &Component{}
 	}, func() frame.IComponentKW {
-		return nil
+		return &ComponentKW{}
 	})
 }

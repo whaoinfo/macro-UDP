@@ -26,7 +26,7 @@ type IClient interface {
 	Initialize(args ...interface{}) error
 	Authenticate() error
 	Upload(bucket, key string, reader io.Reader) error
-	UploadLarge(bucket, key string, reader io.Reader, PartSize int64) error
+	UploadLarge(bucket, key string, reader io.Reader, partSize int64) error
 }
 
 type ClientInfo struct {

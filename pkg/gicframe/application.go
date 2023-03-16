@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/whaoinfo/go-box/logger"
 	"github.com/whaoinfo/go-box/ossignal"
+	"github.com/whaoinfo/go-box/pubsub"
 	"os"
 	"syscall"
 )
@@ -15,6 +16,8 @@ const (
 
 type ApplicationID string
 type NewApplication func() IApplication
+type TopicType uint16
+type TopicSubKey interface{}
 
 type IApplication interface {
 	baseInitialize(appID ApplicationID) error
@@ -22,16 +25,19 @@ type IApplication interface {
 	GetID() ApplicationID
 
 	importComponents(infoList []componentConfigModel) error
+	Pub(topic TopicType, args ...interface{}) error
+	Sub(topic TopicType, subKey TopicSubKey, handle pubsub.TopicFunc, preArgs ...interface{}) error
 	start() error
-	OnStart() error
+	AfterStart() error
 	stop() error
-	OnStop() error
+	StopBefore() error
 	forever()
 }
 
 type BaseApplication struct {
 	id            ApplicationID
 	signalHandler *ossignal.SignalHandler
+	ob            *pubsub.ObServer
 	componentMap  map[ComponentID]IComponent
 }
 
@@ -43,6 +49,13 @@ func (t *BaseApplication) baseInitialize(id ApplicationID) error {
 	if err := t.signalHandler.InitSignalHandler(APPDefaultSignChanSize); err != nil {
 		return err
 	}
+
+	ob, newObErr := pubsub.NewObServer(true)
+	if newObErr != nil {
+		return newObErr
+	}
+	t.ob = ob
+
 	for _, sig := range []os.Signal{syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT} {
 		t.signalHandler.RegisterSignal(sig, func() {
 			t.signalHandler.CloseSignalHandler()
@@ -60,6 +73,16 @@ func (t *BaseApplication) GetID() ApplicationID {
 	return t.id
 }
 
+func (t *BaseApplication) Pub(topic TopicType, args ...interface{}) error {
+	return t.ob.Publish(topic, false, args...)
+}
+
+func (t *BaseApplication) Sub(topic TopicType, subKey TopicSubKey,
+	handle pubsub.TopicFunc, preArgs ...interface{}) error {
+
+	return t.ob.Subscribe(topic, subKey, handle, preArgs...)
+}
+
 func (t *BaseApplication) start() error {
 	for componentID, component := range t.componentMap {
 		logger.InfoFmt("Start %v component...", componentID)
@@ -71,7 +94,7 @@ func (t *BaseApplication) start() error {
 	return nil
 }
 
-func (t *BaseApplication) OnStart() error {
+func (t *BaseApplication) AfterStart() error {
 	return nil
 }
 
@@ -86,7 +109,8 @@ func (t *BaseApplication) stop() error {
 	return nil
 }
 
-func (t *BaseApplication) OnStop() error {
+func (t *BaseApplication) StopBefore() error {
+
 	return nil
 }
 

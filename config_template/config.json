@@ -1,4 +1,14 @@
 {
+  "storageAgent": {
+    "importClientTypes": ["s3"],
+    "s3Storage": {
+      "endpoint": "http://172.0.3.45:9000",
+      "region": "us-east-2",
+      "accessKeyId": "rd4vYRiDgnau0CaM",
+      "secretAccessKey": "lFAGCijl3b6IiWhnzE5LUatmWI83RB4Q"
+    }
+  },
+
   "tracer": [
     {
       "disable": false,

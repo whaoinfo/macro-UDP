@@ -5,6 +5,7 @@ import (
 	"github.com/whaoinfo/go-box/logger"
 	"github.com/whaoinfo/go-box/nbuffer"
 	"github.com/whaoinfo/macro-UDP/internal/bufferpool"
+	"github.com/whaoinfo/macro-UDP/internal/message"
 	frame "github.com/whaoinfo/macro-UDP/pkg/gicframe"
 	"github.com/whaoinfo/netio"
 )
@@ -94,7 +95,11 @@ func (t *Component) handleReadPacket(pkt *netio.UDPPacket) {
 		return
 	}
 
-	regMsgInfo.Handle(msg, buf, regMsgInfo.Args...)
+	ctx := &message.HandleContext{
+		Buf: buf,
+		Msg: msg,
+	}
+	regMsgInfo.Handle(ctx, regMsgInfo.Args...)
 
 	return
 }

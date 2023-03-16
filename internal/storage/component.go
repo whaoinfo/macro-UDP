@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"errors"
+	"github.com/whaoinfo/go-box/logger"
 	configmodel2 "github.com/whaoinfo/macro-UDP/internal/configmodel"
 	"github.com/whaoinfo/macro-UDP/internal/define"
 	frame "github.com/whaoinfo/macro-UDP/pkg/gicframe"
@@ -10,12 +10,9 @@ import (
 )
 
 type ComponentKW struct {
-	EnableStatsMode bool `json:"enable_stats_mode"`
-	QueueGroup      struct {
-		Maxsize   int64 `json:"maxsize"`
-		MaxLength int64 `json:"maxlength"`
-	} `json:"queue_group"`
-	Worker struct {
+	EnableStatsMode bool   `json:"enable_stats_mode"`
+	AgentClientType string `json:"agent_client_type"`
+	Worker          struct {
 		MaxSize         int64 `json:"maxsize"`
 		IntervalMS      int   `json:"interval_ms"`
 		IntervalRWCount int   `json:"interval_rw_count"`
@@ -25,8 +22,8 @@ type ComponentKW struct {
 type Component struct {
 	frame.BaseComponent
 	agent      *sa.Agent
+	clientType sa.ClientType
 	workerPool *simpleworkerpool.Pool
-	queueGroup *QueueGroup
 	kw         *ComponentKW
 }
 
@@ -37,15 +34,13 @@ func (t *Component) GetType() frame.ComponentType {
 func (t *Component) Initialize(kw frame.IComponentKW) error {
 	cfg := &configmodel2.GetConfigModel().Storage
 	// initialize storage agent
+	kwArgs := kw.(*ComponentKW)
+	t.clientType = sa.ClientType(kwArgs.AgentClientType)
 	if err := t.initializeAgent(cfg); err != nil {
 		return err
 	}
 
 	t.kw = kw.(*ComponentKW)
-	// initialize queue group
-	t.queueGroup = &QueueGroup{}
-	t.queueGroup.Initialize(t.kw.QueueGroup.Maxsize, t.kw.QueueGroup.MaxLength)
-
 	// initialize worker pool
 	workerPool := simpleworkerpool.NewWorkerPool()
 	if err := workerPool.Initialize(t.kw.Worker.MaxSize, t.kw.EnableStatsMode); err != nil {
@@ -57,35 +52,39 @@ func (t *Component) Initialize(kw frame.IComponentKW) error {
 }
 
 func (t *Component) initializeAgent(cfg *configmodel2.ConfigStorageModel) error {
-	var infoList []sa.ClientInfo
-	for _, tpy := range cfg.StorageAgent.ImportClientTypes {
-		infoList = append(infoList, sa.ClientInfo{
-			ClientType: sa.ClientType(tpy),
-			Args:       nil,
-		})
-	}
+	var agentInfoList []sa.ClientInfo
+	agentInfoList = append(agentInfoList, sa.ClientInfo{
+		ClientType: sa.ClientType(tpy),
+		Args:       []interface{}{cfg.StorageAgent.AmazonS3.Endpoint},
+	})
 
 	agent := &sa.Agent{}
-	if err := agent.Initialize(infoList); err != nil {
+	if err := agent.Initialize(agentInfoList); err != nil {
+		return err
+	}
+	t.agent = agent
+
+	if err := frame.GetAppProxy().Sub(define.StartTracSessionEvent, t.GetID(), t.onStartTracSessionEvent); err != nil {
 		return err
 	}
 
-	t.agent = agent
 	return nil
 }
 
 func (t *Component) Start() error {
 	t.workerPool.Start()
-	poolMaxsize := t.workerPool.GetMaxsize()
-	for i := 0; i < int(poolMaxsize); i++ {
-		if !t.workerPool.SubmitTask(t.timeHandleTask) {
-			return errors.New("failed to submit task")
-		}
-	}
-
 	return nil
 }
 
-//func (t *Component) PutElement(elem *ioadapter.LayerPacket) {
-//
-//}
+func (t *Component) onStartTracSessionEvent(args ...interface{}) {
+	if len(args) <= 0 {
+		return
+	}
+
+	sessInfo := args[0].(*define.SessionStorageInfo)
+	if !t.workerPool.SubmitTask(t.timeTask, args...) {
+		logger.WarnFmt("Failed to submit a time task for %v session", sessInfo.ID)
+		return
+	}
+	logger.AllFmt("The time task was submitted for %v session", sessInfo.ID)
+}

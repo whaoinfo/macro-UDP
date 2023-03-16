@@ -7,8 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.18.15
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.55
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.30.5
-	github.com/whaoinfo/gicframe v1.0.1-dev
-	github.com/whaoinfo/go-box v1.0.5-dev
+	github.com/whaoinfo/go-box v1.0.5-dev.0.20230316123106-ff31a4c0dd4f
 	github.com/whaoinfo/netio v1.0.1-dev
 )
 

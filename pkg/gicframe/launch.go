@@ -68,6 +68,8 @@ func LaunchDaemonApplication(workPath string, launcherConfPath string, newApp Ne
 	}
 	logger.Info("The config has initialized")
 
+	setAppProxy(app)
+
 	// Import component list
 	logger.InfoFmt("Import components...")
 	if err := app.importComponents(launcherConf.Components); err != nil {
@@ -79,18 +81,18 @@ func LaunchDaemonApplication(workPath string, launcherConfPath string, newApp Ne
 	if err := app.start(); err != nil {
 		return err
 	}
-	if err := app.OnStart(); err != nil {
+	logger.Info("The application has started")
+	if err := app.AfterStart(); err != nil {
 		return err
 	}
-	logger.Info("The application has started")
 
 	app.forever()
 
-	logger.Info("Stop application...")
-	if err := app.stop(); err != nil {
+	if err := app.StopBefore(); err != nil {
 		return err
 	}
-	if err := app.OnStop(); err != nil {
+	logger.Info("Stop application...")
+	if err := app.stop(); err != nil {
 		return err
 	}
 	logger.Info("The application has stopped")

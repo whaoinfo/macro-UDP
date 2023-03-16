@@ -15,8 +15,7 @@ const (
 
 type NewComponent func() IComponent
 
-type IComponentKW interface {
-}
+type IComponentKW interface{}
 
 type NewComponentKW func() IComponentKW
 

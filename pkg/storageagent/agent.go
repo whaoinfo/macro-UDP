@@ -47,3 +47,12 @@ func (t *Agent) Upload(clientType ClientType, bucket, key string, reader io.Read
 
 	return client.Upload(bucket, key, reader)
 }
+
+func (t *Agent) UploadLarge(clientType ClientType, bucket, key string, reader io.Reader, partSize int64) error {
+	client := t.clientMap[clientType]
+	if client == nil {
+		return fmt.Errorf("type %s dose not exist", clientType)
+	}
+
+	return client.UploadLarge(bucket, key, reader, partSize)
+}

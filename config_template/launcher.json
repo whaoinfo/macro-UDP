@@ -6,13 +6,17 @@
     {
       "component_type": "tracer",
       "disable":false,
-      "kw": {}
+      "kw": {
+        "max_queue_num": 1,
+        "max_queue_length": 5
+      }
     },
     {
       "component_type": "storage",
       "disable":false,
       "kw": {
         "enable_stats_mode": true,
+        "agent_client_type": "s3",
         "queue_group": {
           "maxsize": 2,
           "maxlength": 50
