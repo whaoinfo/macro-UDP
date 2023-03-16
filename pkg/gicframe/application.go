@@ -3,6 +3,7 @@ package gicframe
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/whaoinfo/go-box/ctime"
 	"github.com/whaoinfo/go-box/logger"
 	"github.com/whaoinfo/go-box/ossignal"
 	"github.com/whaoinfo/go-box/pubsub"
@@ -23,7 +24,6 @@ type IApplication interface {
 	baseInitialize(appID ApplicationID) error
 	Initialize(args ...interface{}) error
 	GetID() ApplicationID
-
 	importComponents(infoList []componentConfigModel) error
 	Pub(topic TopicType, args ...interface{}) error
 	Sub(topic TopicType, subKey TopicSubKey, handle pubsub.TopicFunc, preArgs ...interface{}) error
@@ -89,6 +89,7 @@ func (t *BaseApplication) start() error {
 		if err := component.Start(); err != nil {
 			return fmt.Errorf("the %v component has failed to start, %v", componentID, err)
 		}
+		component.setStartTimestamp(ctime.CurrentTimestamp())
 		logger.InfoFmt("The %v component has started", componentID)
 	}
 	return nil

@@ -1,39 +1,50 @@
 package configmodel
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/whaoinfo/go-box/logger"
+)
 
 var (
-	confModel = &ConfigModel{}
-	confInst  = &Config{
-		model: confModel,
+	confInst = &Config{
+		sidecarConfigModel: &SidecarConfigModel{},
+		tracingModel:       &ConfigTracingModel{},
+		simStorageModel:    &SimStorageModel{},
 	}
 )
 
 type ConfigModel struct {
-	Tracer  ConfigTracerModel  `json:"tracer"`
-	Storage ConfigStorageModel `json:"storage"`
+	SidecarConfigModel SidecarConfigModel `json:"sidecar"`
+	ConfigTracingModel ConfigTracingModel `json:"tracing"`
+	SimStorageModel    SimStorageModel    `json:"sim_storage"`
 }
 
 type Config struct {
-	model *ConfigModel
+	sidecarConfigModel *SidecarConfigModel
+	tracingModel       *ConfigTracingModel
+	simStorageModel    *SimStorageModel
 }
 
-func (t *Config) Parse(key string, data []byte) error {
-	if key == "default" {
-		return t.parseDefault(data)
+func (t *Config) Cover(data []byte) error {
+	md := &ConfigModel{}
+	if err := json.Unmarshal(data, md); err != nil {
+		return err
 	}
+
+	t.sidecarConfigModel = &md.SidecarConfigModel
+	t.tracingModel = &md.ConfigTracingModel
+	t.simStorageModel = &md.SimStorageModel
+
+	logger.InfoFmt("config data: %v", string(data))
+	return nil
+}
+
+func (t *Config) Update(key string, data []byte) error {
+	// todo:
 
 	return nil
 }
 
-func (t *Config) parseDefault(data []byte) error {
-	return json.Unmarshal(data, t.model)
-}
-
-func GetConfigInstance() *Config {
+func GetConfig() *Config {
 	return confInst
-}
-
-func GetConfigModel() *ConfigModel {
-	return confInst.model
 }

@@ -31,6 +31,8 @@ type IComponent interface {
 	GetNum() int
 	GetID() ComponentID
 	GetType() ComponentType
+	GetStartTimestamp() int64
+	setStartTimestamp(tp int64)
 	Start() error
 	Stop() error
 	//AcceptAssociation(args ...interface{})
@@ -50,11 +52,12 @@ func RegisterComponentInfo(tpy ComponentType, newComponent NewComponent, newComp
 }
 
 type BaseComponent struct {
-	num      int
-	tpy      ComponentType
-	id       ComponentID
-	status   ComponentStatus
-	appProxy IApplication
+	num            int
+	startTimestamp int64
+	tpy            ComponentType
+	id             ComponentID
+	status         ComponentStatus
+	appProxy       IApplication
 }
 
 func (t *BaseComponent) baseInitialize(num int, tpy ComponentType) error {
@@ -83,6 +86,14 @@ func (t *BaseComponent) GetID() ComponentID {
 
 func (t *BaseComponent) GetStatus() ComponentStatus {
 	return t.status
+}
+
+func (t *BaseComponent) GetStartTimestamp() int64 {
+	return t.startTimestamp
+}
+
+func (t *BaseComponent) setStartTimestamp(tp int64) {
+	t.startTimestamp = tp
 }
 
 func (t *BaseComponent) setPartStatus(status ComponentStatus) {

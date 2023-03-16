@@ -1,13 +1,16 @@
 package gicframe
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/whaoinfo/go-box/logger"
 	"io/ioutil"
 	"path"
 )
 
 type IConfig interface {
-	Parse(key string, data []byte) error
+	Cover(data []byte) error
+	Update(key string, data []byte) error
 }
 
 func initializeConfig(workPath string, confInst IConfig, launcherCfg *LauncherConfigModel, enabledDevMode bool) error {
@@ -15,28 +18,33 @@ func initializeConfig(workPath string, confInst IConfig, launcherCfg *LauncherCo
 		return nil
 	}
 
-	var infoList []configInfoModel
 	if enabledDevMode {
-		infoList = append(infoList, configInfoModel{
-			Key: "default", Path: path.Join(workPath, "config_template", "config.json"),
-		})
-	} else {
 		for _, elem := range launcherCfg.ConfigInfoMap {
-			infoList = append(infoList, configInfoModel{
-				Key: elem.Key, Path: elem.Path,
-			})
+			elem.Path = path.Join(workPath, "config_template", fmt.Sprintf("%s.json", elem.Key))
 		}
 	}
 
-	for _, info := range infoList {
-		logger.InfoFmt("Load config, key: %v, path: %s", info.Key, info.Path)
+	configDataMap := make(map[string]map[string]interface{})
+	for _, info := range launcherCfg.ConfigInfoMap {
+		logger.InfoFmt("Load config, key: %s, path: %s", info.Key, info.Path)
 		fileData, readFileErr := ioutil.ReadFile(info.Path)
 		if readFileErr != nil {
 			return readFileErr
 		}
-		if err := confInst.Parse(info.Key, fileData); err != nil {
+		dataMap := make(map[string]interface{})
+		if err := json.Unmarshal(fileData, &dataMap); err != nil {
 			return err
 		}
+		configDataMap[info.Key] = dataMap
+	}
+
+	coverData, msErr := json.Marshal(configDataMap)
+	if msErr != nil {
+		return msErr
+	}
+
+	if err := confInst.Cover(coverData); err != nil {
+		return err
 	}
 
 	return nil

@@ -51,10 +51,10 @@ func loadConfig(region, endpointURL string) (*aws.Config, error) {
 		config.WithEndpointResolverWithOptions(
 			aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 				return aws.Endpoint{
-					//PartitionID: "aws",
-					URL: endpointURL,
-					//SigningRegion: "us-east-2",
-					//HostnameImmutable: true,
+					PartitionID:       "aws",
+					URL:               endpointURL,
+					SigningRegion:     region,
+					HostnameImmutable: true,
 				}, nil
 			}),
 		))

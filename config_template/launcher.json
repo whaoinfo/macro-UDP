@@ -1,7 +1,11 @@
 {
   "app_type": "pcapserver",
   "log_level": "ALL",
-  "config_paths": {},
+  "configs": [
+    {"key": "sidecar", "path": ""},
+    {"key": "tracing", "path": ""},
+    {"key": "sim_storage", "path": ""}
+  ],
   "components": [
     {
       "component_type": "tracer",

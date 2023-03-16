@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/whaoinfo/go-box/logger"
-	configmodel2 "github.com/whaoinfo/macro-UDP/internal/configmodel"
+	cfgmd "github.com/whaoinfo/macro-UDP/internal/configmodel"
 	"github.com/whaoinfo/macro-UDP/internal/define"
 	frame "github.com/whaoinfo/macro-UDP/pkg/gicframe"
 	"github.com/whaoinfo/macro-UDP/pkg/simpleworkerpool"
@@ -32,11 +32,11 @@ func (t *Component) GetType() frame.ComponentType {
 }
 
 func (t *Component) Initialize(kw frame.IComponentKW) error {
-	cfg := &configmodel2.GetConfigModel().Storage
+
 	// initialize storage agent
 	kwArgs := kw.(*ComponentKW)
 	t.clientType = sa.ClientType(kwArgs.AgentClientType)
-	if err := t.initializeAgent(cfg); err != nil {
+	if err := t.initializeAgent(); err != nil {
 		return err
 	}
 
@@ -51,15 +51,27 @@ func (t *Component) Initialize(kw frame.IComponentKW) error {
 	return nil
 }
 
-func (t *Component) initializeAgent(cfg *configmodel2.ConfigStorageModel) error {
-	var agentInfoList []sa.ClientInfo
-	agentInfoList = append(agentInfoList, sa.ClientInfo{
-		ClientType: sa.ClientType(tpy),
-		Args:       []interface{}{cfg.StorageAgent.AmazonS3.Endpoint},
-	})
+func (t *Component) initializeAgent() error {
+	var agentInfo sa.ClientInfo
+	switch t.clientType {
+	case sa.AWSS3ClientType:
+		s3Cfg := cfgmd.GetSidecarConfig().S3Storage
+		agentInfo = sa.ClientInfo{
+			ClientType: t.clientType,
+			Args:       []interface{}{s3Cfg.Endpoint, "us-east-2", s3Cfg.AccessKeyID, s3Cfg.SecretAccessKey},
+		}
+		break
+	case sa.SimClientType:
+		simCfg := cfgmd.GetSimStorageConfig()
+		agentInfo = sa.ClientInfo{
+			ClientType: t.clientType,
+			Args:       []interface{}{simCfg.Endpoint},
+		}
+		break
+	}
 
 	agent := &sa.Agent{}
-	if err := agent.Initialize(agentInfoList); err != nil {
+	if err := agent.Initialize([]sa.ClientInfo{agentInfo}); err != nil {
 		return err
 	}
 	t.agent = agent

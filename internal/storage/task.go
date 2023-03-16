@@ -52,6 +52,7 @@ func (t *Component) timeTask(id simpleworkerpool.WorkerID, args ...interface{}) 
 		if err := t.uploadElements(uploadBuf, sessInfo, elems); err != nil {
 			logger.WarnFmt("Upload failed, %v", err)
 		}
+		logger.AllFmt("")
 
 		// todo: recycle buffers
 	}
@@ -68,7 +69,8 @@ func (t *Component) fetchElemsList(queueIdx *int, queueList []*safetyqueue.Safet
 		q := queueList[*queueIdx]
 		*queueIdx = (*queueIdx + 1) % queueListLen
 		elems := q.Pops(readNum)
-		logger.AllFmt("Fetch context on queue %d, len: %d", *queueIdx, len(elems))
+		logger.AllFmt("Fetch context on queue %d, PopsLen: %d, QueueLen: %d",
+			*queueIdx, len(elems), q.Length())
 		if len(elems) <= 0 {
 			continue
 		}
@@ -86,17 +88,20 @@ func (t *Component) fetchElemsList(queueIdx *int, queueList []*safetyqueue.Safet
 func (t *Component) uploadElements(uploadBuf *bytes.Buffer, sessInfo *define.SessionStorageInfo, elems []interface{}) error {
 	uploadCount := atomic.AddUint64(sessInfo.UploadCount, 1)
 	bucket := strings.Join([]string{string(sessInfo.ID), "0"}, "-")
-	key := strconv.Itoa(int(uploadCount))
+	key := strings.Join([]string{strconv.Itoa(int(t.GetStartTimestamp())), strconv.Itoa(int(uploadCount))}, "-")
 
 	for _, elem := range elems {
 		ctx := elem.(*message.HandleContext)
 		uploadBuf.Write(ctx.Buf.GetNextReadBytes())
 	}
 
+	uploadSize := uploadBuf.Len()
 	if err := t.agent.UploadLarge(t.clientType, bucket, key, uploadBuf, workerBufBytesSize); err != nil {
 		atomic.AddUint64(sessInfo.UploadFailCount, 1)
 		return err
 	}
 
+	logger.AllFmt("Upload successful, ClientType: %v, bucket: %s, key: %s, size: %d",
+		t.clientType, bucket, key, uploadSize)
 	return nil
 }

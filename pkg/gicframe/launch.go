@@ -19,10 +19,10 @@ type configInfoModel struct {
 }
 
 type LauncherConfigModel struct {
-	AppID         string                     `json:"app_id"`
-	LogLevel      string                     `json:"log_level"`
-	ConfigInfoMap map[string]configInfoModel `json:"config_paths"`
-	Components    []componentConfigModel     `json:"components"`
+	AppID         string                 `json:"app_id"`
+	LogLevel      string                 `json:"log_level"`
+	ConfigInfoMap []*configInfoModel     `json:"configs"`
+	Components    []componentConfigModel `json:"components"`
 }
 
 func LaunchDaemonApplication(workPath string, launcherConfPath string, newApp NewApplication,

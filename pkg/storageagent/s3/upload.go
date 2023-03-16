@@ -31,7 +31,7 @@ func (t *AmazonS3Client) UploadLarge(bucket, key string, reader io.Reader, partS
 		u.PartSize = partSize
 	})
 
-	output, putErr := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	_, putErr := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		Body:   reader,
@@ -41,6 +41,6 @@ func (t *AmazonS3Client) UploadLarge(bucket, key string, reader io.Reader, partS
 		return putErr
 	}
 
-	output = output
+	//output = output
 	return nil
 }

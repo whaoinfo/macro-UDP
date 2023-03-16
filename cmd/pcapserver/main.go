@@ -22,9 +22,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	cfgInst := configmodel.GetConfigInstance()
-	if err := frame.LaunchDaemonApplication(workPath, *lachConfPath, nil, nil, cfgInst,
-		*enableDevMode); err != nil {
+	if err := frame.LaunchDaemonApplication(workPath, *lachConfPath, nil, nil,
+		configmodel.GetConfig(), *enableDevMode); err != nil {
 		logger.ErrorFmt("Failed to launch application, %v", err)
 		os.Exit(1)
 	}

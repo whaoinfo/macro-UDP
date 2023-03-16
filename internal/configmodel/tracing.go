@@ -1,5 +1,9 @@
 package configmodel
 
+type ConfigTracingModel struct {
+	TraceSessionList []ConfigTraceSessionModel `json:"traceSessionList"`
+}
+
 type ConfigTraceSessionModel struct {
 	Disable        bool                         `json:"disable"`
 	TraceSessionId string                       `json:"traceSessionId"`
@@ -20,4 +24,6 @@ type ConfigTraceInterfaceModel struct {
 	Interfaces  []string `json:"interfaces"`
 }
 
-type ConfigTracerModel []ConfigTraceSessionModel
+func GetTracingConfig() *ConfigTracingModel {
+	return confInst.tracingModel
+}

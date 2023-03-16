@@ -2,7 +2,7 @@ package tracer
 
 import (
 	"github.com/whaoinfo/go-box/logger"
-	configmodel "github.com/whaoinfo/macro-UDP/internal/configmodel"
+	cfgmd "github.com/whaoinfo/macro-UDP/internal/configmodel"
 	"github.com/whaoinfo/macro-UDP/internal/message"
 	frame "github.com/whaoinfo/macro-UDP/pkg/gicframe"
 )
@@ -22,7 +22,7 @@ func (t *Component) Initialize(kw frame.IComponentKW) error {
 	t.tracerMap = make(map[tracerType]ITracer)
 	//t.kw = kw.(*ComponentKW)
 	kwArgs := kw.(*ComponentKW)
-	cfg := configmodel.GetConfigModel().Tracer
+	cfg := cfgmd.GetTracingConfig()
 
 	for tracerTpy, f := range regNewTracerFuncMap {
 		tracer := f()
@@ -83,8 +83,8 @@ func (t *Component) bindMessages(tracer ITracer) bool {
 	return true
 }
 
-func (t *Component) addTracerSessions(tracer ITracer, cfg configmodel.ConfigTracerModel) {
-	for _, sessCfg := range cfg {
+func (t *Component) addTracerSessions(tracer ITracer, cfg *cfgmd.ConfigTracingModel) {
+	for _, sessCfg := range cfg.TraceSessionList {
 		if !tracer.checkConfigType(&sessCfg) {
 			continue
 		}
